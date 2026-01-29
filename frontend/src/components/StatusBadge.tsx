@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Wifi, WifiOff, Loader2 } from 'lucide-react';
 import { checkHealth, HealthResponse } from '@/lib/api';
 
 export function StatusBadge() {
@@ -15,7 +17,7 @@ export function StatusBadge() {
         setHealth(data);
         setError(null);
       } catch (err) {
-        setError('API Offline');
+        setError('Offline');
         setHealth(null);
       } finally {
         setLoading(false);
@@ -23,24 +25,29 @@ export function StatusBadge() {
     };
 
     fetchHealth();
-    const interval = setInterval(fetchHealth, 30000); // Check every 30 seconds
+    const interval = setInterval(fetchHealth, 30000);
     return () => clearInterval(interval);
   }, []);
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm">
-        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-        <span className="text-gray-600 dark:text-gray-400">Connecting...</span>
+      <div className="flex items-center gap-2 px-3 py-1 border border-gray-300 dark:border-gray-700 text-xs font-mono tracking-wider">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        >
+          <Loader2 className="w-3 h-3 text-yellow-500" />
+        </motion.div>
+        <span className="text-gray-500">CONNECTING</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center gap-2 px-3 py-1 bg-red-100 dark:bg-red-900/30 rounded-full text-sm">
-        <div className="w-2 h-2 bg-red-500 rounded-full" />
-        <span className="text-red-600 dark:text-red-400">{error}</span>
+      <div className="flex items-center gap-2 px-3 py-1 border border-red-500/50 text-xs font-mono tracking-wider">
+        <WifiOff className="w-3 h-3 text-red-500" />
+        <span className="text-red-500">OFFLINE</span>
       </div>
     );
   }
@@ -49,14 +56,26 @@ export function StatusBadge() {
   const isDemo = health?.mode === 'demo';
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+    <div className={`flex items-center gap-2 px-3 py-1 border text-xs font-mono tracking-wider ${
       isHealthy 
-        ? 'bg-green-100 dark:bg-green-900/30' 
-        : 'bg-yellow-100 dark:bg-yellow-900/30'
+        ? 'border-green-500/50' 
+        : 'border-yellow-500/50'
     }`}>
-      <div className={`w-2 h-2 rounded-full ${isHealthy ? 'bg-green-500' : 'bg-yellow-500'}`} />
-      <span className={isHealthy ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}>
-        {isDemo ? 'Demo Mode' : health?.status}
+      <motion.div
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [1, 0.7, 1]
+        }}
+        transition={{ 
+          duration: 2, 
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      >
+        <Wifi className={`w-3 h-3 ${isHealthy ? 'text-green-500' : 'text-yellow-500'}`} />
+      </motion.div>
+      <span className={isHealthy ? 'text-green-500' : 'text-yellow-500'}>
+        {isDemo ? 'DEMO' : health?.status?.toUpperCase()}
       </span>
     </div>
   );

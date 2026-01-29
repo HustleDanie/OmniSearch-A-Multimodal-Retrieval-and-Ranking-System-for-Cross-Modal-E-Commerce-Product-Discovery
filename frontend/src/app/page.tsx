@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Image, X, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { SearchBar, SearchOptions } from '@/components/SearchBar';
 import { ProductGrid } from '@/components/ProductCard';
 import { StatusBadge } from '@/components/StatusBadge';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   Product, 
   searchByText, 
@@ -38,7 +41,6 @@ export default function Home() {
       let searchType: string;
 
       if (file && query) {
-        // Multimodal search
         const response = await searchMultimodal({
           text: query,
           file,
@@ -49,12 +51,10 @@ export default function Home() {
         results = response.results;
         searchType = 'Multimodal';
       } else if (file) {
-        // Image search
         const response = await searchByImage(file, searchOptions);
         results = response.results;
         searchType = 'Image';
       } else {
-        // Text search
         const response = await searchByText(query, searchOptions);
         results = response.results;
         searchType = 'Text';
@@ -76,69 +76,138 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-black">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                🔍 OmniSearch
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Multimodal Product Discovery
-              </p>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3"
+            >
+              <div className="relative">
+                <div className="w-10 h-10 border-2 border-black dark:border-white flex items-center justify-center">
+                  <Search className="w-5 h-5" />
+                </div>
+                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-black dark:border-white" />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-black dark:border-white" />
+              </div>
+              <div>
+                <h1 className="font-orbitron text-xl md:text-2xl font-bold tracking-wider">
+                  OMNISEARCH
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400 tracking-widest uppercase">
+                  Multimodal Discovery
+                </p>
+              </div>
+            </motion.div>
+            
+            <div className="flex items-center gap-4">
+              <StatusBadge />
+              <ThemeToggle />
             </div>
-            <StatusBadge />
           </div>
         </div>
       </header>
 
+      {/* Hero Section */}
+      <section className="relative py-12 md:py-20 overflow-hidden">
+        {/* Background Grid */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),
+                              linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }} />
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 md:px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="font-orbitron text-3xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+              SEARCH REIMAGINED
+            </h2>
+            <div className="w-20 h-1 bg-black dark:bg-white mx-auto mb-6" />
+            <p className="text-gray-600 dark:text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+              Harness the power of multimodal AI to discover products using 
+              <span className="text-black dark:text-white font-semibold"> text</span>, 
+              <span className="text-black dark:text-white font-semibold"> images</span>, or 
+              <span className="text-black dark:text-white font-semibold"> both</span>.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 pb-16">
         {/* Search Section */}
-        <section className="mb-8">
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-12"
+        >
           <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-        </section>
+        </motion.section>
 
         {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl">
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium">Error: {error}</span>
-            </div>
-            <p className="text-sm text-red-500 dark:text-red-300 mt-1">
-              Make sure the API server is running (python demo_server.py)
-            </p>
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-8 p-4 border border-red-500/50 bg-red-500/10 relative"
+            >
+              <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-red-500" />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-red-500" />
+              <div className="flex items-center gap-3">
+                <X className="w-5 h-5 text-red-500" />
+                <div>
+                  <p className="font-semibold text-red-500">Error: {error}</p>
+                  <p className="text-sm text-red-400 mt-1">
+                    Make sure the API server is running (python demo_server.py)
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Search Stats */}
-        {lastSearch && !error && (
-          <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-            <span className="flex items-center gap-1">
-              <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                lastSearch.type === 'Multimodal' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' :
-                lastSearch.type === 'Image' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
-                'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+        <AnimatePresence>
+          {lastSearch && !error && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="mb-8 flex flex-wrap items-center gap-4 text-sm font-mono"
+            >
+              <span className={`px-3 py-1 border ${
+                lastSearch.type === 'Multimodal' 
+                  ? 'border-purple-500 text-purple-500' 
+                  : lastSearch.type === 'Image' 
+                  ? 'border-green-500 text-green-500' 
+                  : 'border-blue-500 text-blue-500'
               }`}>
-                {lastSearch.type}
+                {lastSearch.type.toUpperCase()}
               </span>
-            </span>
-            <span>
-              Found <strong>{lastSearch.count}</strong> products
-            </span>
-            <span>
-              for &ldquo;{lastSearch.query}&rdquo;
-            </span>
-            <span className="text-gray-400">
-              ({lastSearch.time}ms)
-            </span>
-          </div>
-        )}
+              <span className="text-gray-500 dark:text-gray-400">
+                Found <span className="text-black dark:text-white font-bold">{lastSearch.count}</span> results
+              </span>
+              <span className="text-gray-500 dark:text-gray-400">
+                for &ldquo;<span className="text-black dark:text-white">{lastSearch.query}</span>&rdquo;
+              </span>
+              <span className="text-gray-400">
+                [{lastSearch.time}ms]
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Results */}
         <section>
@@ -146,21 +215,35 @@ export default function Home() {
             <ProductGrid products={products} isLoading={isLoading} />
           ) : !lastSearch ? (
             /* Welcome State */
-            <div className="text-center py-16">
-              <div className="text-8xl mb-6">🛍️</div>
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-                Welcome to OmniSearch
-              </h2>
-              <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
-                Search for products using text, images, or both! Try searching for 
-                &ldquo;red summer dress&rdquo; or upload an image to find similar products.
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-center py-16 md:py-24"
+            >
+              <div className="relative inline-block mb-8">
+                <div className="w-24 h-24 border-2 border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                  <Sparkles className="w-10 h-10 text-gray-400" />
+                </div>
+                <div className="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 border-black dark:border-white" />
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 border-black dark:border-white" />
+              </div>
+              
+              <h3 className="font-orbitron text-2xl md:text-3xl font-bold mb-4">
+                START YOUR SEARCH
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-10">
+                Enter a text query, upload an image, or combine both for 
+                multimodal product discovery.
               </p>
               
               {/* Quick Search Examples */}
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="flex flex-wrap justify-center gap-3">
                 {['red dress', 'blue jeans', 'white sneakers', 'black jacket'].map((term) => (
-                  <button
+                  <motion.button
                     key={term}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleSearch(term, null, {
                       top_k: 10,
                       category: 'All',
@@ -169,29 +252,42 @@ export default function Home() {
                       imageWeight: 0.6,
                       textWeight: 0.4,
                     })}
-                    className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-700 hover:border-black dark:hover:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 text-sm tracking-wider uppercase"
                   >
                     {term}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ) : null}
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-12">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+      <footer className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              OmniSearch: A Multimodal Retrieval and Ranking System for Cross-Modal E-Commerce Product Discovery
-            </p>
-            <div className="flex gap-4 text-sm">
-              <a href="http://localhost:8000/docs" target="_blank" className="text-blue-600 hover:underline">
+            <div className="text-center md:text-left">
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                OmniSearch: A Multimodal Retrieval and Ranking System
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Cross-Modal E-Commerce Product Discovery
+              </p>
+            </div>
+            <div className="flex gap-6 text-sm">
+              <a 
+                href="http://localhost:8000/docs" 
+                target="_blank" 
+                className="text-gray-500 hover:text-black dark:hover:text-white transition-colors tracking-wider uppercase"
+              >
                 API Docs
               </a>
-              <a href="https://github.com/HustleDanie/OmniSearch-A-Multimodal-Retrieval-and-Ranking-System-for-Cross-Modal-E-Commerce-Product-Discovery" target="_blank" className="text-blue-600 hover:underline">
+              <a 
+                href="https://github.com/HustleDanie/OmniSearch-A-Multimodal-Retrieval-and-Ranking-System-for-Cross-Modal-E-Commerce-Product-Discovery" 
+                target="_blank" 
+                className="text-gray-500 hover:text-black dark:hover:text-white transition-colors tracking-wider uppercase"
+              >
                 GitHub
               </a>
             </div>
