@@ -1,0 +1,168 @@
+name: Security & Code Quality
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  # ==================== Dependency Scanning ====================
+  dependencies:
+    name: Check Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install pip-audit
+        run: pip install pip-audit
+      
+      - name: Scan dependencies for vulnerabilities
+        run: pip-audit --desc
+        continue-on-error: true
+      
+      - name: Check for outdated packages
+        run: |
+          pip list --outdated --format=columns
+        continue-on-error: true
+
+  # ==================== SAST Security Scan ====================
+  security:
+    name: Security Scan (SAST)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install security tools
+        run: |
+          pip install bandit semgrep
+      
+      - name: Run Bandit security scan
+        run: |
+          bandit -r api/ services/ scripts/ \
+            -f json \
+            -o /tmp/bandit-report.json
+        continue-on-error: true
+      
+      - name: Display Bandit results
+        run: cat /tmp/bandit-report.json | python -m json.tool
+        continue-on-error: true
+      
+      - name: Run Semgrep security scan
+        run: |
+          semgrep --config=p/security-audit api/ services/ scripts/
+        continue-on-error: true
+
+  # ==================== Code Quality ====================
+  quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install tools
+        run: |
+          pip install radon pytest-complexity cyclomatic
+      
+      - name: Check code complexity
+        run: |
+          radon cc api/ services/ scripts/ -s -j > /tmp/complexity.json
+          echo "Code Complexity Report:"
+          cat /tmp/complexity.json
+        continue-on-error: true
+      
+      - name: Check maintainability index
+        run: |
+          radon mi api/ services/ scripts/ -s
+        continue-on-error: true
+      
+      - name: Check raw metrics
+        run: |
+          radon raw api/ services/ scripts/ -j
+        continue-on-error: true
+
+  # ==================== Docker Security Scan ====================
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Docker image for scanning
+        run: docker build -t omnisearch:scan -f Dockerfile .
+        continue-on-error: true
+      
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'omnisearch:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
+
+  # ==================== Type Checking ====================
+  typing:
+    name: Type Checking (mypy)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install mypy types-all
+          pip install -r requirements.txt
+      
+      - name: Run mypy type checker
+        run: |
+          mypy api/ services/ scripts/ \
+            --ignore-missing-imports \
+            --pretty \
+            --html /tmp/mypy-report
+        continue-on-error: true
+      
+      - name: Display type checking results
+        run: |
+          echo "✅ Type checking completed"

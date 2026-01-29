@@ -1,0 +1,24 @@
+# Flake8 Configuration
+
+[flake8]
+max-line-length = 120
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    .eggs,
+    *.egg,
+    .github
+
+ignore =
+    E203,  # Whitespace before ':'
+    W503,  # Line break before binary operator
+    E501,  # Line too long (handled by Black)
+
+per-file-ignores =
+    __init__.py: F401
+    tests/*: F811,F401
+
+# Complexity checks
+max-complexity = 10

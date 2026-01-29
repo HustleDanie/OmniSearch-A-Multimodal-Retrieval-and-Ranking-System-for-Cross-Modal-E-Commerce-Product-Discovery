@@ -1,0 +1,172 @@
+version: '3.8'
+
+services:
+  # FastAPI Search Service
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: omnisearch-fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - WEAVIATE_URL=http://weaviate:8080
+      - MONGODB_URL=mongodb://mongo:27017
+      - MONGODB_DB=omnisearch
+      - EMBEDDING_SERVICE_URL=http://embedding:8001
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./:/app
+      - logs:/app/logs
+    depends_on:
+      weaviate:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      embedding:
+        condition: service_healthy
+    networks:
+      - omnisearch-network
+    restart: unless-stopped
+    command: >
+      sh -c "
+      sleep 10 &&
+      uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  # Embedding Service (CLIP)
+  embedding:
+    build:
+      context: .
+      dockerfile: Dockerfile.embedding
+    container_name: omnisearch-embedding
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - TRANSFORMERS_CACHE=/app/models
+      - CLIP_CACHE=/app/models
+    volumes:
+      - ./:/app
+      - embedding-models:/app/models
+      - logs:/app/logs
+    networks:
+      - omnisearch-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+
+  # Weaviate Vector Database
+  weaviate:
+    image: semitechnologies/weaviate:1.24.1
+    container_name: omnisearch-weaviate
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      - QUERY_DEFAULTS_LIMIT=20
+      - DEFAULT_VECTORIZER_MODULE=none
+      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
+      - ENABLE_MODULES=text2vec-huggingface,ref2vec-centroid
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
+      - BACKUP_FILESYSTEM_PATH=/var/lib/weaviate/backups
+      - LOG_LEVEL=info
+    volumes:
+      - weaviate-data:/var/lib/weaviate
+    networks:
+      - omnisearch-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/.well-known/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # MongoDB Document Database
+  mongo:
+    image: mongo:7.0
+    container_name: omnisearch-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=omnisearch
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - omnisearch-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    command: >
+      --auth
+      --replSet rs0
+      --bind_ip_all
+
+  # Optional: MongoDB UI for development
+  mongo-express:
+    image: mongo-express:latest
+    container_name: omnisearch-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:password@mongo:27017/
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+    depends_on:
+      - mongo
+    networks:
+      - omnisearch-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+  # Optional: Weaviate UI Console
+  weaviate-console:
+    image: semitechnologies/weaviate-console:latest
+    container_name: omnisearch-weaviate-console
+    ports:
+      - "3000:3000"
+    environment:
+      - WEAVIATE_HOST=weaviate:8080
+    depends_on:
+      - weaviate
+    networks:
+      - omnisearch-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+networks:
+  omnisearch-network:
+    driver: bridge
+
+volumes:
+  weaviate-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  mongodb-config:
+    driver: local
+  embedding-models:
+    driver: local
+  logs:
+    driver: local
