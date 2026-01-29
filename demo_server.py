@@ -10,8 +10,8 @@ import uvicorn
 
 # Create FastAPI app
 app = FastAPI(
-    title="OmniSearch API - Demo Mode",
-    description="Multimodal product search API (Demo Mode - Mock Data)",
+    title="OmniSearch: Multimodal Product Discovery - Demo Mode",
+    description="A Multimodal Retrieval and Ranking System for Cross-Modal E-Commerce Product Discovery (Demo Mode - Mock Data)",
     version="1.0.0-demo",
     docs_url="/docs",
     redoc_url="/redoc"

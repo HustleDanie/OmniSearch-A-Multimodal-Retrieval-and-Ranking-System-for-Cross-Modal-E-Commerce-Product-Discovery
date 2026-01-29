@@ -11,8 +11,8 @@ from api.ab_middleware import ABTestingMiddleware
 
 # Create FastAPI app
 app = FastAPI(
-    title="OmniSearch API",
-    description="Multimodal product search using CLIP embeddings and vector similarity",
+    title="OmniSearch: Multimodal Product Discovery",
+    description="A Multimodal Retrieval and Ranking System for Cross-Modal E-Commerce Product Discovery using CLIP embeddings, vector databases, and advanced ranking algorithms",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"

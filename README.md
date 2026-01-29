@@ -1,6 +1,6 @@
-# OmniSearch API
+# OmniSearch: A Multimodal Retrieval and Ranking System for Cross-Modal E-Commerce Product Discovery
 
-Multimodal product search using CLIP embeddings and vector similarity.
+A production-grade FastAPI-based platform for intelligent product search using CLIP embeddings, vector similarity matching, and advanced ranking algorithms. Enables seamless cross-modal search (text-to-image, image-to-image) with RAG-powered personalized recommendations.
 
 ## Quick Start
 

@@ -1,6 +1,6 @@
 # OmniSearch Usage Guide 🚀
 
-Complete guide to using the OmniSearch multimodal product search API.
+Complete guide to using **OmniSearch: A Multimodal Retrieval and Ranking System for Cross-Modal E-Commerce Product Discovery**
 
 ---
 

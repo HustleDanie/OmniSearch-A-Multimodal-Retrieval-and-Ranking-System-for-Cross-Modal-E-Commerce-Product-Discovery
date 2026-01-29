@@ -1,3 +1,37 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnisearch"
+version = "1.0.0"
+description = "OmniSearch: A Multimodal Retrieval and Ranking System for Cross-Modal E-Commerce Product Discovery"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "OmniSearch Contributors", email = "dev@omnisearch.local"}
+]
+keywords = [
+    "machine-learning",
+    "vector-search",
+    "clip",
+    "embeddings",
+    "e-commerce",
+    "product-discovery",
+    "cross-modal-search",
+    "weaviate",
+    "fastapi"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Internet :: WWW/HTTP"
+]
+
 [tool.black]
 line-length = 120
 target-version = ['py311']

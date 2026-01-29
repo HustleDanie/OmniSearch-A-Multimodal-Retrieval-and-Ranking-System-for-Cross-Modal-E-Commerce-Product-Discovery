@@ -1,6 +1,6 @@
 # 🚀 Push to GitHub - Quick Instructions
 
-Your OmniSearch repository is ready! Follow these 3 simple steps:
+Your **OmniSearch: A Multimodal Retrieval and Ranking System for Cross-Modal E-Commerce Product Discovery** repository is ready! Follow these 3 simple steps:
 
 ## STEP 1: Create GitHub Repository
 1. Open: https://github.com/new
