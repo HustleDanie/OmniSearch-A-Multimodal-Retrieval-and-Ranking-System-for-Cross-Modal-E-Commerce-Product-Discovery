@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Image, X, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { SearchBar, SearchOptions } from '@/components/SearchBar';
 import { ProductGrid } from '@/components/ProductCard';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -112,7 +112,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-12 md:py-20 overflow-hidden">
+      <section className="relative py-6 md:py-10 overflow-hidden">
         {/* Background Grid */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -128,14 +128,14 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-orbitron text-3xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-              SEARCH REIMAGINED
+            <h2 className="font-orbitron text-2xl md:text-3xl lg:text-4xl font-bold mb-2 tracking-tight">
+              Omnisearch
             </h2>
-            <div className="w-20 h-1 bg-black dark:bg-white mx-auto mb-6" />
-            <p className="text-gray-600 dark:text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-              Harness the power of multimodal AI to discover products using 
-              <span className="text-black dark:text-white font-semibold"> text</span>, 
-              <span className="text-black dark:text-white font-semibold"> images</span>, or 
+            <div className="w-12 h-0.5 bg-black dark:bg-white mx-auto mb-3" />
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+              Find exactly what you're looking for using 
+              <span className="text-black dark:text-white font-semibold"> words</span>, 
+              <span className="text-black dark:text-white font-semibold"> pictures</span>, or 
               <span className="text-black dark:text-white font-semibold"> both</span>.
             </p>
           </motion.div>
@@ -151,6 +151,9 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-12"
         >
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+            Enter a text query, upload an image, or combine both for multimodal product discovery.
+          </p>
           <SearchBar onSearch={handleSearch} isLoading={isLoading} />
         </motion.section>
 
@@ -211,55 +214,9 @@ export default function Home() {
 
         {/* Results */}
         <section>
-          {(products.length > 0 || isLoading) ? (
+          {(products.length > 0 || isLoading) && (
             <ProductGrid products={products} isLoading={isLoading} />
-          ) : !lastSearch ? (
-            /* Welcome State */
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-center py-16 md:py-24"
-            >
-              <div className="relative inline-block mb-8">
-                <div className="w-24 h-24 border-2 border-gray-300 dark:border-gray-700 flex items-center justify-center">
-                  <Sparkles className="w-10 h-10 text-gray-400" />
-                </div>
-                <div className="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 border-black dark:border-white" />
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 border-black dark:border-white" />
-              </div>
-              
-              <h3 className="font-orbitron text-2xl md:text-3xl font-bold mb-4">
-                START YOUR SEARCH
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-10">
-                Enter a text query, upload an image, or combine both for 
-                multimodal product discovery.
-              </p>
-              
-              {/* Quick Search Examples */}
-              <div className="flex flex-wrap justify-center gap-3">
-                {['red dress', 'blue jeans', 'white sneakers', 'black jacket'].map((term) => (
-                  <motion.button
-                    key={term}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleSearch(term, null, {
-                      top_k: 10,
-                      category: 'All',
-                      color: 'All',
-                      searchType: 'text',
-                      imageWeight: 0.6,
-                      textWeight: 0.4,
-                    })}
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-700 hover:border-black dark:hover:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 text-sm tracking-wider uppercase"
-                  >
-                    {term}
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          ) : null}
+          )}
         </section>
       </main>
 

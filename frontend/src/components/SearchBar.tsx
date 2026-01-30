@@ -79,14 +79,14 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
       {/* Main Search Container */}
       <div className="relative">
         {/* Decorative Corners */}
-        <div className="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 border-black dark:border-white" />
-        <div className="absolute -top-2 -right-2 w-6 h-6 border-t-2 border-r-2 border-black dark:border-white" />
-        <div className="absolute -bottom-2 -left-2 w-6 h-6 border-b-2 border-l-2 border-black dark:border-white" />
-        <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 border-black dark:border-white" />
+        <div className="absolute -top-1.5 -left-1.5 w-4 h-4 border-t-2 border-l-2 border-black dark:border-white" />
+        <div className="absolute -top-1.5 -right-1.5 w-4 h-4 border-t-2 border-r-2 border-black dark:border-white" />
+        <div className="absolute -bottom-1.5 -left-1.5 w-4 h-4 border-b-2 border-l-2 border-black dark:border-white" />
+        <div className="absolute -bottom-1.5 -right-1.5 w-4 h-4 border-b-2 border-r-2 border-black dark:border-white" />
 
-        <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 md:p-6">
+        <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3 md:p-4">
           {/* Search Type Badge */}
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-3">
             <span className={`text-xs tracking-widest font-mono px-3 py-1 border ${
               searchTypeColor === 'purple' ? 'border-purple-500 text-purple-500' :
               searchTypeColor === 'green' ? 'border-green-500 text-green-500' :
@@ -116,7 +116,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Enter search query..."
-                className="w-full px-4 py-4 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none transition-colors font-mono text-sm placeholder:text-gray-400"
+                className="w-full px-3 py-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 focus:border-black dark:focus:border-white outline-none transition-colors font-mono text-sm placeholder:text-gray-400"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 <button
@@ -142,7 +142,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
               disabled={isLoading || (!query && !file)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-6 md:px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-mono text-sm tracking-wider disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              className="px-5 md:px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-mono text-sm tracking-wider disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
               {isLoading ? (
                 <>
