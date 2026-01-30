@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable dark mode with class strategy */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* CSS Variables for theming */
 :root {
   --background: #ffffff;
@@ -19,7 +22,7 @@
   --ring: #0a0a0a;
 }
 
-.dark {
+:root.dark, .dark {
   --background: #000000;
   --foreground: #fafafa;
   --card: #0a0a0a;
