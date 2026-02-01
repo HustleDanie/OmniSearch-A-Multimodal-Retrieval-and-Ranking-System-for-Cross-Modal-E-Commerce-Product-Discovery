@@ -173,7 +173,7 @@ export default function Home() {
                 <div>
                   <p className="font-semibold text-red-500">Error: {error}</p>
                   <p className="text-sm text-red-400 mt-1">
-                    Make sure the API server is running (python demo_server.py)
+                    Make sure the API server is running (uvicorn main:app --reload)
                   </p>
                 </div>
               </div>

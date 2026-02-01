@@ -19,7 +19,7 @@ First, make sure the OmniSearch API is running:
 
 ```bash
 # From the root directory
-python demo_server.py
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 # API will be at http://localhost:8000
 ```
 

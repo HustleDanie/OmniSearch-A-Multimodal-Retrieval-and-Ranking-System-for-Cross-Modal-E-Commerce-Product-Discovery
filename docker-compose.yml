@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # FastAPI Search Service
   fastapi:
@@ -66,7 +64,7 @@ services:
 
   # Weaviate Vector Database
   weaviate:
-    image: semitechnologies/weaviate:1.24.1
+    image: semitechnologies/weaviate:1.27.0
     container_name: omnisearch-weaviate
     ports:
       - "8080:8080"
@@ -115,8 +113,6 @@ services:
       retries: 5
       start_period: 15s
     command: >
-      --auth
-      --replSet rs0
       --bind_ip_all
 
   # Optional: MongoDB UI for development

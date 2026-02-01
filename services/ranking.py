@@ -56,10 +56,78 @@ def _cosine_sim(freq_a: Dict[str, int], freq_b: Dict[str, int]) -> float:
 
 
 def text_similarity(query_text: Optional[str], title: Optional[str]) -> float:
-    """Compute text similarity (0..1) between query text and product title."""
+    """
+    Compute text similarity (0..1) between query text and product title.
+    Uses bag-of-words cosine similarity and keyword boosting for relevant terms.
+    Also detects category mentions in queries.
+    """
     if not query_text or not title:
         return 0.0
-    return _cosine_sim(_bow(query_text), _bow(title))
+    
+    base_sim = _cosine_sim(_bow(query_text), _bow(title))
+    
+    query_lower = query_text.lower()
+    title_lower = title.lower()
+    
+    # Category keywords mapping
+    category_keywords = {
+        "electronics": ["phone", "laptop", "computer", "watch", "tablet", "headset", "earbuds", "speaker", "monitor", "keyboard"],
+        "apparel": ["shirt", "dress", "jacket", "pants", "blouse", "coat", "sweater", "hoodie", "shorts", "trousers"],
+        "footwear": ["shoe", "boot", "sneaker", "heel", "loafer", "sandal", "slipper", "flat"],
+        "furniture": ["desk", "chair", "table", "bed", "shelf", "sofa", "couch", "bookcase"],
+        "accessories": ["bag", "belt", "scarf", "hat", "purse", "cap", "backpack"],
+        "sports": ["dumbbells", "yoga", "bike", "ball", "racket", "skateboard", "weights", "mat"],
+        "kitchen": ["coffee", "blender", "toaster", "microwave", "pan", "pot", "kettle", "mixer"],
+        "jewelry": ["watch", "bracelet", "necklace", "ring", "earring"],
+    }
+    
+    # Check if query mentions a specific category
+    detected_category = None
+    for category, keywords in category_keywords.items():
+        if category in query_lower:
+            detected_category = category
+            break
+    
+    # If a category is mentioned, check if title matches that category
+    if detected_category:
+        category_matched = False
+        for keyword in category_keywords[detected_category]:
+            if keyword in title_lower:
+                category_matched = True
+                break
+        
+        # If category is explicitly mentioned but not matched in title, penalize
+        if not category_matched:
+            return 0.1  # Very low score for wrong category
+    
+    # Define keyword boosting for general queries
+    keyword_boosts = {
+        "workout": ["dumbbells", "yoga", "gym", "fitness", "exercise", "sports", "training", "weights"],
+        "equipment": ["dumbbells", "racket", "mat", "bike", "skateboard", "weights", "stand"],
+        "exercise": ["dumbbells", "yoga", "bike", "skateboard", "mat", "tennis"],
+        "sports": ["basketball", "soccer", "ball", "racket", "bike", "skateboard"],
+        "professional": ["watch", "laptop", "laptop", "chair", "desk"],
+        "comfortable": ["shoe", "mat", "chair", "bed", "clothing"],
+        "luxury": ["watch", "bracelet", "necklace", "ring", "leather"],
+    }
+    
+    # Check if any query keywords match relevant title keywords
+    boost = 0.0
+    for query_keyword, related_keywords in keyword_boosts.items():
+        if query_keyword in query_lower:
+            for title_keyword in related_keywords:
+                if title_keyword in title_lower:
+                    boost = max(boost, 0.4)
+                    break
+    
+    # Combine base similarity with keyword boost
+    combined = max(base_sim, boost)
+    
+    # Slight additional boost if title contains product descriptors
+    if any(word in title_lower for word in ["equipment", "tool", "gear", "device", "set"]):
+        combined = min(1.0, combined + 0.1)
+    
+    return min(1.0, combined)
 
 
 def exact_match_boost(a: Optional[str], b: Optional[str]) -> float:
@@ -79,13 +147,14 @@ def compute_final_score(
     """
     Compute weighted score.
 
-    Defaults: 0.5*vector + 0.2*color + 0.2*category + 0.1*text
+    Defaults: 0.4*vector + 0.15*color + 0.15*category + 0.3*text
+    Text similarity is weighted higher to catch semantic queries like "workout equipment"
     """
     w = {
-        "vector": 0.5,
-        "color": 0.2,
-        "category": 0.2,
-        "text": 0.1,
+        "vector": 0.4,
+        "color": 0.15,
+        "category": 0.15,
+        "text": 0.3,
     }
     if weights:
         w.update(weights)

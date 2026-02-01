@@ -3,7 +3,7 @@ Weaviate Vector Database Client for Product Search.
 Handles connection, schema creation, and vector operations.
 """
 import weaviate
-from weaviate.classes.config import Configure, Property, DataType
+from weaviate.classes.config import Configure, Property, DataType, VectorDistances
 from weaviate.classes.query import Filter
 import os
 from typing import List, Dict, Any, Optional
@@ -30,11 +30,14 @@ class WeaviateClient:
     def connect(self) -> None:
         """Establish connection to Weaviate."""
         try:
+            # Extract host from URL (remove http/https protocol)
+            host = self.url.replace("http://", "").replace("https://", "").split(":")[0]
+            
             self.client = weaviate.connect_to_custom(
-                http_host=self.url.replace("http://", "").replace("https://", ""),
+                http_host=host,
                 http_port=8080,
                 http_secure=False,
-                grpc_host=self.url.replace("http://", "").replace("https://", ""),
+                grpc_host=host,
                 grpc_port=50051,
                 grpc_secure=False
             )
@@ -81,7 +84,7 @@ class WeaviateClient:
                 
                 # Configure vector index for similarity search
                 vector_index_config=Configure.VectorIndex.hnsw(
-                    distance_metric="cosine",  # Cosine similarity for normalized vectors
+                    distance_metric=VectorDistances.COSINE,  # Cosine similarity for normalized vectors
                     ef_construction=128,        # Higher = better quality, slower indexing
                     ef=64,                     # Higher = better search quality
                     max_connections=64         # Connections per layer
